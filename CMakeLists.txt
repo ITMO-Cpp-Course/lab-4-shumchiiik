@@ -12,7 +12,8 @@ option(STRICT_WARNINGS "Enable extra warnings and treat warnings as errors" ON)
 option(ENABLE_SANITIZERS "Enable AddressSanitizer" ON)
 
 # Common warnings
-add_library(project_warnings INTERFACE)
+add_library(project_warnings INTERFACE
+        src/resource_core/src/filehandle.cpp)
 if (MSVC)
     target_compile_options(project_warnings INTERFACE
             /W4 /permissive- /Zc:preprocessor /Zc:__cplusplus /utf-8
@@ -34,9 +35,16 @@ enable_testing()
 # AddressSanitizer (ASan) as an interface target
 # Sanitizers are not supported on Windows (neither MSVC nor MinGW)
 if (ENABLE_SANITIZERS AND NOT WIN32)
-    add_library(project_sanitizers INTERFACE)
+    add_library(project_sanitizers INTERFACE
+            src/resource_core/include/resource_error.h
+            src/resource_core/include/filehandle.h
+            src/resource_core/src/filehandle.cpp
+            src/resource_core/include/resource_manager.h
+            src/resource_core/src/resource_manager.cpp
+            src/resource_core/src/filehandle.cpp
+            src/resource_core/src/filehandle.cpp)
     target_compile_options(project_sanitizers INTERFACE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
-    target_link_options(project_sanitizers INTERFACE    $<$<CONFIG:Debug>:-fsanitize=address>)
+    target_link_options(project_sanitizers INTERFACE $<$<CONFIG:Debug>:-fsanitize=address>)
 endif ()
 
 add_subdirectory(src/resource_core)
